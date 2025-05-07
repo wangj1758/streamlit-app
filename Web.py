@@ -110,7 +110,7 @@ def get_shap_force_plot(explainer, shap_values, features_df, prediction_class):
             features=features_df,
             feature_names=features_df.columns.tolist(),
             matplotlib=True,
-            show=False
+            show=True
         )
         
         # Add title based on prediction
@@ -135,7 +135,7 @@ def get_shap_force_plot(explainer, shap_values, features_df, prediction_class):
             shap.plots.waterfall(
                 shap_values=selected_shap_values[0], 
                 max_display=20,
-                show=False
+                show=True
             )
             plt.title(f"SHAP Waterfall Plot - {'High Risk' if prediction_class == 1 else 'Low Risk'} for ICU Admission", 
                     fontsize=14)
