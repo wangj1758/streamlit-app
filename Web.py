@@ -436,11 +436,11 @@ else:
     ### Validation Metrics
     
     - **AUROC**: 0.773 (95% CI: 0.748-0.799)
-    - **Sensitivity**: 0.75
-    - **Specificity**: 0.72
-    - **PPV**: 0.69
-    - **NPV**: 0.78
-    - **Accuracy**: 0.73
+    - **Accuracy**: 0.713
+    - **Sensitivity**: 0.690
+    - **Specificity**: 0.733
+    - **F1 score**: 0.683
+    - **Kappa score**: 0.422
     
     The model demonstrates good discriminative ability with an AUROC of 0.773, 
     indicating effective classification performance for ICU admission prediction in AECOPD patients.
