@@ -85,8 +85,12 @@ def get_feature_importance(model, features_df, feature_names):
 # Function to create SHAP force plot and return the image as base64 encoded string
 def get_shap_force_plot(explainer, shap_values, features_df, prediction_class):
     try:
-        # Create a matplotlib figure
-        plt.figure(figsize=(12, 4))
+        # Import matplotlib directly
+        import matplotlib.pyplot as plt
+        from matplotlib.figure import Figure
+        
+        # Create a new figure
+        fig = plt.figure(figsize=(12, 4))
         
         # If binary classification, we use the appropriate class's SHAP values
         if isinstance(shap_values, list):
@@ -94,14 +98,19 @@ def get_shap_force_plot(explainer, shap_values, features_df, prediction_class):
         else:
             selected_shap_values = shap_values
         
+        # Get expected value correctly
+        expected_value = explainer.expected_value
+        if isinstance(expected_value, np.ndarray) or isinstance(expected_value, list):
+            expected_value = expected_value[1]  # Use class 1 for binary classification
+        
         # Create the SHAP force plot
-        shap.force_plot(
-            explainer.expected_value[1] if isinstance(explainer.expected_value, np.ndarray) else explainer.expected_value,
-            selected_shap_values, 
-            features_df,
+        shap.plots.force(
+            base_value=expected_value,
+            shap_values=selected_shap_values,
+            features=features_df,
+            feature_names=features_df.columns.tolist(),
             matplotlib=True,
-            show=False,
-            feature_names=features_df.columns.tolist()
+            show=False
         )
         
         # Add title based on prediction
@@ -121,7 +130,27 @@ def get_shap_force_plot(explainer, shap_values, features_df, prediction_class):
         return image_base64
     except Exception as e:
         st.error(f"Error creating SHAP force plot: {e}")
-        return None
+        try:
+            plt.figure(figsize=(12, 6))
+            shap.plots.waterfall(
+                shap_values=selected_shap_values[0], 
+                max_display=20,
+                show=False
+            )
+            plt.title(f"SHAP Waterfall Plot - {'High Risk' if prediction_class == 1 else 'Low Risk'} for ICU Admission", 
+                    fontsize=14)
+            plt.tight_layout()
+            
+            buffer = BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
+            buffer.seek(0)
+            image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+            
+            return image_base64
+        except Exception as e2:
+            st.error(f"Error creating alternative SHAP plot: {e2}")
+            return None
 
 # Title and introduction
 st.title("Prediction of ICU Admission in Acute Exacerbation of COPD")
